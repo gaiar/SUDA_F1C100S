@@ -1,2 +1,2 @@
 # SUDA_F1C100S
-Open Source for Allwinner SoC F1C100S
+记录自己使用全志F1C100S的历程
