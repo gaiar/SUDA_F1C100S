@@ -60,3 +60,4 @@ tarballs/
 *.gz*
 *.bz2*
 
+tools/compiler/
