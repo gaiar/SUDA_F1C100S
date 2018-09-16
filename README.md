@@ -95,6 +95,11 @@
 
 
 
+## sunxi-tools安装
+
+1. `sudo apt-get install zlib1g-dev libusb-1.0-0-dev`
+2. `make && sudo make install`
+
 
 
 

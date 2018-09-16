@@ -2,3 +2,7 @@
 	path = tools/sunxi-tools
 	url = https://github.com/Icenowy/sunxi-tools.git
 	branch = f1c100s-spiflash
+[submodule "uboot/u-boot-f1c100s"]
+	path = uboot/u-boot-f1c100s
+	url = https://github.com/Lichee-Pi/u-boot.git
+	branch = nano-lcd800480
