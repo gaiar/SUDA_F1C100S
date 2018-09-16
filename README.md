@@ -41,6 +41,60 @@
 
 
 
+## 实验板——荔枝派nano
+
+![引脚映射图](http://odfef978i.bkt.clouddn.com/Pin%20Map.png)
+
+## u-boot
+
+### 目录结构
+
+```bash
+.
+├── api             //封装一些平台无关的操作，如字符串打印，显示，网络，内存
+├── arch            //以平台架构区分
+│   ├──arm
+│   │   └──cpu
+│   │   │   └──arm926ejs
+│   │   │   │   └──sunxi   //cpu相关的一些操作，如定时器读取
+│   │   │   │   │   └──u-boot-spl.lds  //spl的放置方法
+│   │   └──dts
+│   │   │   └──suniv-f1c100s-licheepi-nano.dts   // f1c100s芯片的一些配置
+│   │   │   └──suniv-f1c100s-licheepi-nano.dtb
+│   │   │   └──suniv-f1c100s.dtsi
+│   │   │   └──suniv.dtsi
+│   │   └──lib      //一些库文件
+│   │   └──mach-sunxi
+│   │   │   └──board.c          //board_init_f
+│   │   │   └──dram_sun4i.c     //ddr的操作，复位，时钟，延时，odt，etc.
+│   │   │   └──dram_helpers.c   //ddr的设置及读写测试
+├── board
+│   ├──sunxi
+│   │   └──board.c              //sunxi_board_init 入口
+│   │   └──dram_suniv.c        //DRAM的一些默认参数
+├── cmd             //Uboot命令行的一些命令
+├── common          //含spl
+├── configs         //menuconfig里的默认配置,比如各类驱动适配
+│   ├── licheepi_nano_defconfig
+│   ├── licheepi_nano_spiflash_defconfig
+├── disk            //硬盘分区的驱动
+├── doc
+├── drivers         //外设驱动
+├── dts
+├── examples
+├── fs              //多种文件系统
+├── include
+│   ├──configs
+│   │   └──sunxi_common.h   //预配置的参数，如串口号等
+│   │   └──suniv.h
+├── lib             //加密压缩等算法
+├── net             //nfs,tftp等网络协议
+├── post
+├── scripts
+```
+
+
+
 
 
 

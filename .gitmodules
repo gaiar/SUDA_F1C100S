@@ -1,0 +1,4 @@
+[submodule "tools/sunxi-tools"]
+	path = tools/sunxi-tools
+	url = https://github.com/Icenowy/sunxi-tools.git
+	branch = f1c100s-spiflash
