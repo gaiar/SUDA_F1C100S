@@ -6,3 +6,9 @@
 	path = uboot/u-boot-f1c100s
 	url = https://github.com/Lichee-Pi/u-boot.git
 	branch = nano-lcd800480
+[submodule "rootfs/buildroot"]
+	path = rootfs/buildroot
+	url = git://git.buildroot.net/buildroot
+[submodule "tools/crosstool-ng"]
+	path = tools/crosstool-ng
+	url = https://github.com/crosstool-ng/crosstool-ng
