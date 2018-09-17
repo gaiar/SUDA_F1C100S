@@ -12,3 +12,7 @@
 [submodule "tools/crosstool-ng"]
 	path = tools/crosstool-ng
 	url = https://github.com/crosstool-ng/crosstool-ng
+[submodule "kernel/linux"]
+	path = kernel/linux
+	url = https://github.com/Lichee-Pi/linux.git
+	branch = nano-4.14-exp
