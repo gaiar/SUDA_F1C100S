@@ -133,6 +133,30 @@
 
 
 
+## rootfs
+
+### 配置&编译
+
+1. `make ARCH=arm CROSS_COMPILE=arm-suda-linux-musleabi- menuconfig`
+
+   ![Target配置](https://s1.ax1x.com/2018/09/18/ieJusf.png)
+
+   ![Toolchain配置](https://s1.ax1x.com/2018/09/18/ieJcS1.png)
+
+   ![System配置](https://s1.ax1x.com/2018/09/18/ieJoYd.png)
+
+   ![getty设置](https://s1.ax1x.com/2018/09/18/ieJHSI.png)
+
+   ![软件包配置](https://s1.ax1x.com/2018/09/18/ieYoHU.png)
+
+2. `make ARCH=arm CROSS_COMPILE=arm-suda-linux-musleabi-` 下载源码，编译，打包生成最终的根文件系统
+
+   
+
+   
+
+
+
 ## sunxi-tools安装
 
 1. `sudo apt-get install zlib1g-dev libusb-1.0-0-dev`
@@ -145,3 +169,5 @@
 [crosstool-NG官方文档](https://crosstool-ng.github.io/docs/)
 
 [荔枝派nano官方文档](http://nano.lichee.pro/)
+
+[sunxi官网](https://linux-sunxi.org/Main_Page)

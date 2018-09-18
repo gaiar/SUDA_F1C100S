@@ -60,4 +60,5 @@ tarballs/
 *.gz*
 *.bz2*
 
-tools/compiler/
+build-*/
+compiler/
