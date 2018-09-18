@@ -1,4 +1,4 @@
-# SUDA_F1C100S
+# SUDA_F1C100S 把玩记录
 ### 定制交叉编译工具链——使用crosstool-ng脚本
 
 1. 安装必要的依赖软件
@@ -93,6 +93,44 @@
 ├── scripts
 ```
 
+### 安装依赖软件包
+
+`sudo apt-get install swig`
+
+### 配置&编译
+
+1. `make ARCH=arm CROSS_COMPILE=arm-suda-linux-musleabi- licheepi_nano_spiflash_defconfig` 启用默认配置
+
+2. `make ARCH=arm CROSS_COMPILE=arm-suda-linux-musleabi- menuconfig` 微调配置
+
+   ![配置液晶显示屏参数](https://s1.ax1x.com/2018/09/18/iZvB5t.png)
+
+   ![配置终端提示符](https://s1.ax1x.com/2018/09/18/iZvy28.png)
+
+3. `make ARCH=arm CROSS_COMPILE=arm-suda-linux-musleabi- `
+
+
+
+## kernel
+
+### 安装依赖软件包
+
+`sudo apt install libssl-dev`
+
+### 配置&编译
+
+1. `wget http://nano.lichee.pro/_static/step_by_step/lichee_nano_linux.config` 下载荔枝派nano的默认内核配置文件，`cp lichee_nano_linux.config ./config` 启用默认配置
+
+2. `make ARCH=arm CROSS_COMPILE=arm-suda-linux-musleabi- menuconfig` 微调配置
+
+   ![设置本地版本号](https://s1.ax1x.com/2018/09/18/iZxeit.png)
+
+   ![选择CPU型号](https://s1.ax1x.com/2018/09/18/iZxnRf.png)
+
+   ![文件系统配置](https://s1.ax1x.com/2018/09/18/iZxYiq.png)
+
+3. `make ARCH=arm CROSS_COMPILE=arm-suda-linux-musleabi- -j4` 编译
+
 
 
 ## sunxi-tools安装
@@ -102,8 +140,8 @@
 
 
 
-
-
 ## 参考文献
 
 [crosstool-NG官方文档](https://crosstool-ng.github.io/docs/)
+
+[荔枝派nano官方文档](http://nano.lichee.pro/)
