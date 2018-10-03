@@ -105,9 +105,113 @@
 
    ![配置液晶显示屏参数](https://s1.ax1x.com/2018/09/18/iZvB5t.png)
 
+   ![指定设备树文件](https://s1.ax1x.com/2018/10/03/i3lqwq.png)
+
    ![配置终端提示符](https://s1.ax1x.com/2018/09/18/iZvy28.png)
 
 3. `make ARCH=arm CROSS_COMPILE=arm-suda-linux-musleabi- `
+
+### 添加u-boot开机画面
+
+1. `sudo apt-get install netpbm`
+
+2. `pngtopnm sunxi.png | ppmquant 31 | ppmtobmp -bpp 8 > sunxi.bmp`，这里的sunxi代表u-boot中`board`环境变量的值
+
+3. 将生成的bmp文件放入tools/logos文件夹下
+
+4. 在配置文件`vim include/configs/sunxi-common.h`中添加如下信息
+
+   ```c
+   #define CONFIG_VIDEO_LOGO
+   #define CONFIG_VIDEO_BMP_LOGO
+   #define CONFIG_HIDE_LOGO_VERSION
+   ```
+
+### 烧写到spi-flash中（使用sunxi-tools工具）
+
+```bash
+sudo sunxi-fel -p spiflash-write 0 u-boot-sunxi-with-spl.bin 
+100% [================================================]  1008 kB,   95.3 kB/s 
+```
+
+### 运行输出
+
+```bash
+U-Boot SPL 2018.01suda-05679-g013ca457fd (Oct 03 2018 - 10:14:37)            
+DRAM: 32 MiB                                                                 
+Trying to boot from MMC1                                                     
+Card did not respond to voltage select!                                      
+mmc_init: -95, time 22                  
+spl: mmc init failed with error: -95    
+Trying to boot from sunxi SPI           
+                                        
+                                        
+U-Boot 2018.01suda-05679-g013ca457fd (Oct 03 2018 - 10:14:37 +0800) Allwinner Ty
+
+CPU:   Allwinner F Series (SUNIV)
+Model: Lichee Pi Nano
+DRAM:  32 MiB                                                                   
+MMC:   SUNXI SD/MMC: 0                                                          
+SF: Detected w25q128bv with page size 256 Bytes, erase size 4 KiB, total 16 MiB 
+*** Warning - bad CRC, using default environment                                
+                                                                                
+Setting up a 480x272 lcd console (overscan 0x0)                                 
+In:    serial@1c25000                                                           
+Out:   serial@1c25000                                                           
+Err:   serial@1c25000                                                           
+Net:   No ethernet found.                                                       
+starting USB...                                                                 
+No controllers found                                                            
+Hit any key to stop autoboot:  0                                                
+Card did not respond to voltage select!                                         
+mmc_init: -95, time 22                                                          
+starting USB...                                                                 
+No controllers found                                                            
+USB is stopped. Please issue 'usb start' first.                                 
+starting USB...                                                                 
+No controllers found                                                            
+No ethernet found.                                                              
+missing environment variable: pxeuuid                                           
+missing environment variable: bootfile                                          
+Retrieving file: pxelinux.cfg/00000000                                          
+No ethernet found.                                                              
+missing environment variable: bootfile                                          
+Retrieving file: pxelinux.cfg/0000000                                           
+No ethernet found.                                                              
+missing environment variable: bootfile                                          
+Retrieving file: pxelinux.cfg/000000                                            
+No ethernet found.                                                              
+missing environment variable: bootfile                                          
+Retrieving file: pxelinux.cfg/00000                                             
+No ethernet found.                                                              
+missing environment variable: bootfile                                          
+Retrieving file: pxelinux.cfg/0000                                              
+No ethernet found.                                                              
+missing environment variable: bootfile                                          
+Retrieving file: pxelinux.cfg/000                                               
+No ethernet found.                                                              
+missing environment variable: bootfile                                          
+Retrieving file: pxelinux.cfg/00                                                
+No ethernet found.                                                              
+missing environment variable: bootfile                                          
+Retrieving file: pxelinux.cfg/0                                                 
+No ethernet found.                                                              
+missing environment variable: bootfile                                          
+Retrieving file: pxelinux.cfg/default-arm-sunxi                                 
+No ethernet found.                                                              
+missing environment variable: bootfile                                          
+Retrieving file: pxelinux.cfg/default-arm                                       
+No ethernet found.                                                              
+missing environment variable: bootfile                                          
+Retrieving file: pxelinux.cfg/default                                           
+No ethernet found.                                                              
+Config file not found                                                           
+starting USB...                                                                 
+No controllers found                                                            
+No ethernet found.                                                              
+No ethernet found.                                                              
+suda#
+```
 
 
 
@@ -161,6 +265,48 @@
 
 1. `sudo apt-get install zlib1g-dev libusb-1.0-0-dev`
 2. `make && sudo make install`
+
+### sunxi-tools命令使用
+
+> 进入fel模式需要在上电前拉低spi-flash的`cs`引脚（一般是1号脚），上电后再松开，可以通过`sudo sunxi-fel ver`命令来确认有无成功进入fel模式
+
+* 基本命令使用
+
+1. 查看芯片信息
+
+   `sudo sunxi-fel ver`
+
+2. 列出所有芯片的信息
+
+   `sudo sunxi-fel -l`
+
+3. 加载并执行uboot的spl
+
+   `sudo sunxi-fel spl file`
+
+4. 加载并执行uboot
+
+   `sudo sunxi-fel uboot file-with-spl`
+
+5. 把文件内容写入内存指定地址并显示进度
+
+   `sudo sunxi-fel -p write address file`
+
+6. 运行指定地址的函数
+
+   `sudo sunxi-fel exec 地址`
+
+7. 查看spiflash的信息
+
+   `sudo sunxi-fel spiflash-info`
+
+8. 显示spiflash指定地址的数据并写入到文件
+
+   `sudo sunxi-fel spiflash-read addr length file`
+
+9. 写入指定文件的指定长度的内容到spiflash的指定地址
+
+   `sudo sunxi-fel spiflash-write address file`
 
 
 
