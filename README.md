@@ -45,6 +45,19 @@
 
 ![引脚映射图](http://odfef978i.bkt.clouddn.com/Pin%20Map.png)
 
+
+
+## SPI-Flash分区规划
+
+| 分区序号 | 分区大小        | 分区作用   | 地址空间及分区名               |
+| -------- | --------------- | ---------- | ------------------------------ |
+| mtd0     | 1MB (0x100000)  | spl+uboot  | 0x0000000-0x0100000 : “uboot”  |
+| mtd1     | 64KB (0x10000)  | dtb文件    | 0x0100000-0x0110000 : “dtb”    |
+| mtd2     | 4MB (0x400000)  | linux内核  | 0x0110000-0x0510000 : “kernel” |
+| mtd3     | 剩余 (0xAF0000) | 根文件系统 | 0x0510000-0x1000000 : “rootfs” |
+
+
+
 ## u-boot
 
 ### 目录结构
@@ -109,13 +122,15 @@
 
    ![配置终端提示符](https://s1.ax1x.com/2018/09/18/iZvy28.png)
 
+   ![环境变量配置](https://s1.ax1x.com/2018/10/03/i3fHG6.png)
+
 3. `make ARCH=arm CROSS_COMPILE=arm-suda-linux-musleabi- `
 
 ### 添加u-boot开机画面
 
 1. `sudo apt-get install netpbm`
 
-2. `pngtopnm sunxi.png | ppmquant 31 | ppmtobmp -bpp 8 > sunxi.bmp`，这里的sunxi代表u-boot中`board`环境变量的值
+2. `jpegtopnm logo-uboot.jpg | ppmquant 31 | ppmtobmp -bpp 8 > sunxi.bmp`，这里的sunxi代表u-boot中`board`环境变量的值
 
 3. 将生成的bmp文件放入tools/logos文件夹下
 
@@ -127,89 +142,60 @@
    #define CONFIG_HIDE_LOGO_VERSION
    ```
 
-### 烧写到spi-flash中（使用sunxi-tools工具）
+### 设置bootcmd和bootargs
+
+![设置bootargs](https://s1.ax1x.com/2018/10/03/i3f2xU.png)
+
+* `console=tty0 console=ttyS0,115200 panic=5 rootwait root=/dev/mtdblock3 rw rootfstype=jffs2`
+
+![设置bootcmd](https://s1.ax1x.com/2018/10/03/i3ffr4.png)
+
+```bash
+"sf probe 0:0 60000000;"
+"sf read 0x80C00000 0x100000 0x10000;"
+"sf read 0x80008000 0x110000 0x400000;"
+"bootz 0x80008000 - 0x80C00000"
+```
+
+* 挂载spi-flash
+* 读取 spi-flash 1M（0x100000）位置 64KB(0x4000)大小的 dtb 到地址 0x80C00000
+* 读取 spi-flash 1M+64K（0x110000）位置 4MB(0x400000)大小的 zImage 到地址 0x80008000
+* 从 0x80008000 启动内核，从 0x80C00000 读取设备树配置
+
+### 烧写uboot到spi-flash中（使用sunxi-tools工具）
 
 ```bash
 sudo sunxi-fel -p spiflash-write 0 u-boot-sunxi-with-spl.bin 
 100% [================================================]  1008 kB,   95.3 kB/s 
 ```
 
-### 运行输出
+### 启动日志
 
 ```bash
-U-Boot SPL 2018.01suda-05679-g013ca457fd (Oct 03 2018 - 10:14:37)            
-DRAM: 32 MiB                                                                 
-Trying to boot from MMC1                                                     
-Card did not respond to voltage select!                                      
-mmc_init: -95, time 22                  
-spl: mmc init failed with error: -95    
-Trying to boot from sunxi SPI           
-                                        
-                                        
-U-Boot 2018.01suda-05679-g013ca457fd (Oct 03 2018 - 10:14:37 +0800) Allwinner Ty
+U-Boot SPL 2018.01suda-05679-g013ca457fd-dirty (Oct 03 2018 - 23:55:33)
+DRAM: 32 MiB
+Trying to boot from MMC1
+Card did not respond to voltage select!
+mmc_init: -95, time 22
+spl: mmc init failed with error: -95
+Trying to boot from sunxi SPI
+
+
+U-Boot 2018.01suda-05679-g013ca457fd-dirty (Oct 03 2018 - 23:55:33 +0800)
 
 CPU:   Allwinner F Series (SUNIV)
 Model: Lichee Pi Nano
-DRAM:  32 MiB                                                                   
-MMC:   SUNXI SD/MMC: 0                                                          
-SF: Detected w25q128bv with page size 256 Bytes, erase size 4 KiB, total 16 MiB 
-*** Warning - bad CRC, using default environment                                
-                                                                                
-Setting up a 480x272 lcd console (overscan 0x0)                                 
-In:    serial@1c25000                                                           
-Out:   serial@1c25000                                                           
-Err:   serial@1c25000                                                           
-Net:   No ethernet found.                                                       
-starting USB...                                                                 
-No controllers found                                                            
-Hit any key to stop autoboot:  0                                                
-Card did not respond to voltage select!                                         
-mmc_init: -95, time 22                                                          
-starting USB...                                                                 
-No controllers found                                                            
-USB is stopped. Please issue 'usb start' first.                                 
-starting USB...                                                                 
-No controllers found                                                            
-No ethernet found.                                                              
-missing environment variable: pxeuuid                                           
-missing environment variable: bootfile                                          
-Retrieving file: pxelinux.cfg/00000000                                          
-No ethernet found.                                                              
-missing environment variable: bootfile                                          
-Retrieving file: pxelinux.cfg/0000000                                           
-No ethernet found.                                                              
-missing environment variable: bootfile                                          
-Retrieving file: pxelinux.cfg/000000                                            
-No ethernet found.                                                              
-missing environment variable: bootfile                                          
-Retrieving file: pxelinux.cfg/00000                                             
-No ethernet found.                                                              
-missing environment variable: bootfile                                          
-Retrieving file: pxelinux.cfg/0000                                              
-No ethernet found.                                                              
-missing environment variable: bootfile                                          
-Retrieving file: pxelinux.cfg/000                                               
-No ethernet found.                                                              
-missing environment variable: bootfile                                          
-Retrieving file: pxelinux.cfg/00                                                
-No ethernet found.                                                              
-missing environment variable: bootfile                                          
-Retrieving file: pxelinux.cfg/0                                                 
-No ethernet found.                                                              
-missing environment variable: bootfile                                          
-Retrieving file: pxelinux.cfg/default-arm-sunxi                                 
-No ethernet found.                                                              
-missing environment variable: bootfile                                          
-Retrieving file: pxelinux.cfg/default-arm                                       
-No ethernet found.                                                              
-missing environment variable: bootfile                                          
-Retrieving file: pxelinux.cfg/default                                           
-No ethernet found.                                                              
-Config file not found                                                           
-starting USB...                                                                 
-No controllers found                                                            
-No ethernet found.                                                              
-No ethernet found.                                                              
+DRAM:  32 MiB
+MMC:   SUNXI SD/MMC: 0
+SF: Detected w25q128bv with page size 256 Bytes, erase size 4 KiB, total 16 MiB
+Setting up a 480x272 lcd console (overscan 0x0)
+In:    serial@1c25000
+Out:   serial@1c25000
+Err:   serial@1c25000
+Net:   No ethernet found.
+starting USB...
+No controllers found
+Hit any key to stop autoboot:  0 
 suda#
 ```
 
@@ -233,7 +219,72 @@ suda#
 
    ![文件系统配置](https://s1.ax1x.com/2018/09/18/iZxYiq.png)
 
-3. `make ARCH=arm CROSS_COMPILE=arm-suda-linux-musleabi- -j4` 编译
+   ![配置MTD设备](https://s1.ax1x.com/2018/10/14/iUt3l9.png)
+
+   ![配置SPI驱动](https://s1.ax1x.com/2018/10/14/iUt8yR.png)
+
+   ![配置I2C驱动](https://s1.ax1x.com/2018/10/14/iUtGO1.png)
+
+3. mtd设备分区（这里选择在设备树中进行设置）
+
+   ```makefile
+   &spi0 {
+   	pinctrl-names = "default";
+   	pinctrl-0 = <&spi0_pins_a>;
+   	status = "okay";
+   
+   	flash: w25q128@0 {
+   		#address-cells = <1>;
+   		#size-cells = <1>;
+   		compatible = "winbond,w25q128", "jedec,spi-nor";
+   		reg = <0>;
+   		spi-max-frequency = <50000000>;
+   		partitions {
+               compatible = "fixed-partitions";
+               #address-cells = <1>;
+               #size-cells = <1>;
+               partition@0 {
+                   label = "u-boot";
+                   reg = <0x000000 0x100000>;
+                   read-only;
+               };
+               partition@100000 {
+                   label = "dtb";
+                   reg = <0x100000 0x10000>;
+                   read-only;
+               };
+               partition@110000 {
+                   label = "kernel";
+                   reg = <0x110000 0x400000>;
+                   read-only;
+               };
+               partition@510000 {
+                   label = "rootfs";
+                   reg = <0x510000 0xAF0000>;
+               };
+           };
+   	};
+   };
+   ```
+
+4. 制作开机logo
+
+   `jpegtopnm logo-kernel.jpg | pnmquant 224 | pnmtoplainpnm > logo_linux_clut224.ppm`（将生成的ppm文件存放到drivers/video/logo/logo_linux_clut224.ppm)
+
+5. 添加开机logo
+
+   ![开机logo](https://s1.ax1x.com/2018/10/04/i3XPW4.png)
+
+6. make ARCH=arm CROSS_COMPILE=arm-suda-linux-musleabi- -j4 编译
+
+### 烧写kernel到spi-flash中（使用sunxi-tools工具）
+
+```bash
+sudo sunxi-fel -p spiflash-write 0x100000 suniv-f1c100s-licheepi-nano-with-lcd.dtb 
+100% [================================================]     8 kB,   32.3 kB/s 
+sudo sunxi-fel -p spiflash-write 0x110000 zImage 
+100% [================================================]  3892 kB,   91.8 kB/s 
+```
 
 
 
@@ -253,11 +304,19 @@ suda#
 
    ![软件包配置](https://s1.ax1x.com/2018/09/18/ieYoHU.png)
 
-2. `make ARCH=arm CROSS_COMPILE=arm-suda-linux-musleabi-` 下载源码，编译，打包生成最终的根文件系统
+   ![文件系统配置](https://s1.ax1x.com/2018/10/04/i8SIwn.png)
 
-   
+2. 页大小`0x100` 256字节，块大小`0x10000` 64k，jffs2分区总空间`0xAF0000`
 
-   
+3. `make ARCH=arm CROSS_COMPILE=arm-suda-linux-musleabi-` 下载源码，编译，打包生成最终的根文件系统
+
+### 烧写rootfs到spi-flash中（使用sunxi-tools工具）
+
+```bash
+sudo sunxi-fel -p spiflash-write 0x510000 rootfs.jffs2 
+100% [================================================] 11469 kB,  102.2 kB/s 
+```
+
 
 
 
@@ -268,11 +327,13 @@ suda#
 
 ### sunxi-tools命令使用
 
-> 进入fel模式需要在上电前拉低spi-flash的`cs`引脚（一般是1号脚），上电后再松开，可以通过`sudo sunxi-fel ver`命令来确认有无成功进入fel模式
+* 1. 如果spi-flash中没有内容，并且没有插入SD卡，那么上电后最后最终会进入fel模式
+  2. 如果spi-flash中有内容（不是uboot），则需要在上电前拉低spi-flash的`cs`引脚（一般是1号脚），上电后再松开
+  3. 如果spi-flash中已经存在了uboot，可以在上电后进入uboot终端，执行 `sf probe 0;sf erase 0 0x100000;reset`即可重新进入fel模式
 
 * 基本命令使用
 
-1. 查看芯片信息
+1. 查看芯片信息（一般通过该命令查看芯片是否进入了fel模式）
 
    `sudo sunxi-fel ver`
 
